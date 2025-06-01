@@ -1,0 +1,71 @@
+CEF:0|YourCompany|modul26|1.0|1001|LOGIN_ATTEMPT|8|country=UNKNOWN city=UNKNOWN isSuspicious=true ip=0:0:0:0:0:0:0:1 eventType=LOGIN_ATTEMPT userId=16 device=PostmanRuntime/7.37.3
+CEF:0|YourCompany|modul26|1.0|1001|LOGIN_ATTEMPT|8|country=UNKNOWN city=UNKNOWN isSuspicious=true ip=0:0:0:0:0:0:0:1 eventType=LOGIN_ATTEMPT userId=16 device=PostmanRuntime/7.37.3
+CEF:0|YourCompany|modul26|1.0|1001|LOGIN_ATTEMPT|8|country=UNKNOWN city=UNKNOWN isSuspicious=true ip=0:0:0:0:0:0:0:1 eventType=LOGIN_ATTEMPT userId=16 device=PostmanRuntime/7.37.3
+CEF:0|YourCompany|modul26|1.0|1001|LOGIN_ATTEMPT|8|country=UNKNOWN city=UNKNOWN isSuspicious=true ip=0:0:0:0:0:0:0:1 eventType=LOGIN_ATTEMPT userId=12 device=PostmanRuntime/7.37.3
+CEF:0|YourCompany|modul26|1.0|1001|LOGIN_ATTEMPT|8|country=UNKNOWN city=UNKNOWN isSuspicious=true ip=0:0:0:0:0:0:0:1 eventType=LOGIN_ATTEMPT userId=12 device=PostmanRuntime/7.37.3
+CEF:0|YourCompany|modul26|1.0|1001|LOGIN_ATTEMPT|8|country=UNKNOWN city=UNKNOWN isSuspicious=true ip=0:0:0:0:0:0:0:1 eventType=LOGIN_ATTEMPT userId=12 device=PostmanRuntime/7.37.3
+CEF:0|YourCompany|modul26|1.0|1001|LOGIN_ATTEMPT|8|country=UNKNOWN city=UNKNOWN isSuspicious=true ip=0:0:0:0:0:0:0:1 eventType=LOGIN_ATTEMPT userId=12 device=PostmanRuntime/7.37.3
+CEF:0|YourCompany|modul26|1.0|1001|LOGIN_ATTEMPT|8|country=UNKNOWN city=UNKNOWN isSuspicious=true ip=0:0:0:0:0:0:0:1 eventType=LOGIN_ATTEMPT userId=12 device=PostmanRuntime/7.37.3
+CEF:0|YourCompany|modul26|1.0|1001|piga|8|biometry=false country=USA city=Moscow isSuspicious=true ip=127.0**.***.1 eventType=piga userId=31 device=iPhone11,3 iOS/17.4
+CEF:0|YourCompany|modul26|1.0|1001|piga|8|biometry=false country=USA city=Moscow isSuspicious=true ip=127.0**.***.1 eventType=piga userId=31 device=iPhone11,3 iOS/17.4
+CEF:0|YourCompany|modul26|1.0|1001|piga|8|biometry=false country=RUS city=Moscow isSuspicious=true ip=127.0**.***.1 eventType=piga userId=31 device=iPhone1`,3 iOS/17.4
+CEF:0|YourCompany|modul26|1.0|1001|piga|8|biometry=true country=RUS city=Moscow isSuspicious=true ip=127.0**.***.1 eventType=piga userId=31 device=iPhone11`,3 iOS/17.4
+CEF:0|YourCompany|modul26|1.0|1001|piga|8|biometry=true country=USA city=Moscow isSuspicious=true ip=127.0**.***.1 eventType=piga userId=31 device=iPhone11,3 iOS/17.4
+CEF:0|YourCompany|modul26|1.0|1001|piga|8|biometry=true country=USA city=Moscow isSuspicious=true ip=127.0**.***.1 eventType=piga userId=31 device=iPhone11,3 iOS/17.4
+CEF:0|YourCompany|modul26|1.0|1001|piga|8|biometry=true country=USA city=Moscow isSuspicious=true ip=127.0**.***.1 eventType=piga userId=31 device=iPhone11,3 iOS/17.4
+CEF:0|YourCompany|modul26|1.0|1001|piga|8|biometry=false country=RUS city=Moscow isSuspicious=true ip=127.0**.***.2 eventType=piga userId=31 device=iPhone11,3 iOS/17.4
+CEF:0|YourCompany|modul26|1.0|1001|piga|8|biometry=false country=RUS city=Moscow isSuspicious=true ip=127.0**.***.2 eventType=piga userId=31
+CEF:0|YourCompany|modul26|1.0|1001|piga|8|biometry=false country=RUS device_info=iPhone21,3 iOS/17.4 city=Moscow isSuspicious=true ip=127.0**.***.2 eventType=piga userId=31
+CEF:0|YourCompany|modul26|1.0|1001|piga|8|biometry=false country=RUS device_info=iPhone22,3 iOS/17.4 city=Moscow isSuspicious=true ip=127.0**.***.2 eventType=piga userId=31
+CEF:0|YourCompany|modul26|1.0|1001|piga|8|biometry=false country=ger device_info=iPhone22,3 iOS/17.4 city=Moscow isSuspicious=true ip=127.0**.***.2 eventType=piga userId=31
+CEF:0|YourCompany|modul26|1.0|1001|piga|8|biometry=false country=ger device_info=iPhone22,3 iOS/17.4 city=Moscow isSuspicious=true ip=127.0**.***.6 eventType=piga userId=31
+CEF:0|YourCompany|modul26|1.0|1001|piga|8|biometry=true country=ger device_info=iPhone22,3 iOS/17.4 city=Moscow isSuspicious=true ip=127.0**.***.6 eventType=piga userId=32
+CEF:0|YourCompany|modul26|1.0|1001|piga|8|biometry=true country=ger device_info=iPhone12,3 iOS/17.4 city=Moscow isSuspicious=true ip=127.0**.***.6 eventType=piga userId=32
+CEF:0|YourCompany|modul26|1.0|1001|piga|8|biometry=true country=ger device_info=iPhone12,3 iOS/17.4 city=vlad isSuspicious=true ip=127.0**.***.6 eventType=piga userId=32
+CEF:0|YourCompany|modul26|1.0|1001|piga|8|biometry=true country=ger device_info=ios|mac city=vlad isSuspicious=true ip=127.0**.***.6 eventType=piga userId=32
+CEF:0|YourCompany|modul26|1.0|1001|piga|8|biometry=true country=ger device_info=iPhone12,3 iOS/17.4 city=vla isSuspicious=true ip=127.0**.***.6 eventType=piga userId=32
+CEF:0|YourCompany|modul26|1.0|1001|piga|8|biometry=true country=ger device_info=iPhone12,3 iOS/17.4 city=vцla isSuspicious=true ip=127.0**.***.6 eventType=piga userId=32
+CEF:0|YourCompany|modul26|1.0|1001|piga|8|biometry=true country=ger device_info=iPhone12,3 iOS/17.4 city=vцla isSuspicious=true ip=127.0**.***.6 eventType=piga userId=32
+CEF:0|YourCompany|modul26|1.0|1001|piga|8|biometry=true country=ger device_info=iPhone12,3 iOS/17.4 city=vцla isSuspicious=true ip=127.0**.***.6 eventType=piga userId=32
+CEF:0|YourCompany|modul26|1.0|1001|piga|8|biometry=true country=ger device_info=iPhone12,3 iOS/17.4 city=vцla isSuspicious=true ip=127.0**.***.6 eventType=piga userId=32
+CEF:0|YourCompany|modul26|1.0|1001|piga|8|biometry=true country=ger device_info=iPhone12,3 iOS/17.4 city=vцla isSuspicious=true ip=127.0**.***.6 eventType=piga userId=32
+CEF:0|YourCompany|modul26|1.0|1001|LOGIN_ATTEMPT|8|country=UNKNOWN device_info=PostmanRuntime/7.37.3 city=UNKNOWN isSuspicious=true ip=0:0:0:0:0:0:0:1 eventType=LOGIN_ATTEMPT userId=33
+CEF:0|YourCompany|modul26|1.0|1001|piga|8|biometry=true country=ger device_info=iPhone12,3 iOS/17.4 city=vцla isSuspicious=true ip=127.0**.***.6 eventType=piga userId=33
+CEF:0|YourCompany|modul26|1.0|1001|piga|8|biometry=true country=ger device_info=iPhone12,3 iOS/17.4 city=vцla isSuspicious=true ip=127.0**.***.6 eventType=piga userId=33
+CEF:0|YourCompany|modul26|1.0|1001|piga|8|biometry=true country=ger device_info=iPhone12,3 iOS/17.4 city=vla isSuspicious=true ip=127.0**.***.6 eventType=piga userId=33
+CEF:0|YourCompany|modul26|1.0|1001|LOGIN_ATTEMPT|8|country=UNKNOWN device_info=PostmanRuntime/7.37.3 city=UNKNOWN isSuspicious=true ip=0:0:0:0:0:0:0:1 eventType=LOGIN_ATTEMPT userId=34
+CEF:0|YourCompany|modul26|1.0|1001|piga|8|biometry=true country=ger device_info=iPhone12,3 iOS/17.4 city=vla isSuspicious=true ip=127.0**.***.6 eventType=piga userId=34
+CEF:0|YourCompany|modul26|1.0|1001|piga|8|biometry=true country=ger device_info=iPhone12,3 iOS/17.4 city=vla isSuspicious=true ip=127.0**.***.6 eventType=piga userId=34
+CEF:0|YourCompany|modul26|1.0|1001|piga|8|biometry=true country=ger device_info=iPhone12,3 iOS/17.4 city=vla isSuspicious=true ip=127.0**.***.6 eventType=piga userId=34
+CEF:0|YourCompany|modul26|1.0|1001|piga|8|biometry=true country=ger device_info=iPhone12,3 iOS/17.4 city=vla isSuspicious=true ip=127.0**.***.6 eventType=piga userId=34
+CEF:0|YourCompany|modul26|1.0|1001|piga|8|biometry=true country=ger device_info=iPhone12,3 iOS/17.4 city=vla isSuspicious=true ip=127.0**.***.6 eventType=piga userId=34
+CEF:0|YourCompany|modul26|1.0|1001|piga|8|biometry=true country=ger device_info=iPhone12,3 iOS/17.4 city=vla isSuspicious=true ip=127.000.6 eventType=piga userId=34
+CEF:0|YourCompany|modul26|1.0|1001|piga|8|biometry=true country=ger device_info=iPhone12,3 iOS/17.4 city=vla isSuspicious=true ip=127.000.6 eventType=piga userId=34
+CEF:0|YourCompany|modul26|1.0|1001|piga|8|biometry=true country=ger device_info=iPhone12,3 iOS/17.4 city=vla isSuspicious=true ip=127.000.6 eventType=piga userId=34
+CEF:0|YourCompany|modul26|1.0|1001|piga|8|biometry=true country=ger device_info=iPhone12,3 iOS/17.4 city=vlaa isSuspicious=true ip=127.000.6 eventType=piga userId=34
+CEF:0|YourCompany|modul26|1.0|1001|piga|8|biometry=true country=gaer device_info=iPhone12,3 iOS/17.4 city=vlaa isSuspicious=true ip=127.000.6 eventType=piga userId=34
+CEF:0|YourCompany|modul26|1.0|1001|LOGIN_ATTEMPT|8|country=UNKNOWN device_info=PostmanRuntime/7.37.3 city=UNKNOWN isSuspicious=true ip=0:0:0:0:0:0:0:1 eventType=LOGIN_ATTEMPT userId=35
+CEF:0|YourCompany|modul26|1.0|1001|piga|8|biometry=true country=gaer device_info=iPhone12,3 iOS/17.4 city=vlaa isSuspicious=true ip=127.000.6 eventType=piga userId=35
+CEF:0|YourCompany|modul26|1.0|1001|piga|8|biometry=false country=gaer device_info=iPhone12,3 iOS/17.4 city=vlaa isSuspicious=true ip=127.000.6 eventType=piga userId=35
+CEF:0|YourCompany|modul26|1.0|1001|LOGIN_ATTEMPT|8|country=UNKNOWN device_info=PostmanRuntime/7.37.3 city=UNKNOWN isSuspicious=true ip=0:0:0:0:0:0:0:1 eventType=LOGIN_ATTEMPT userId=36
+CEF:0|YourCompany|modul26|1.0|1001|piga|8|biometry=true country=gaer device_info=iPhone12,3 iOS/17.4 city=vlaa isSuspicious=true ip=127.000.6 eventType=piga userId=36
+CEF:0|YourCompany|modul26|1.0|1001|LOGIN|8|biometry=false country=gaer device_info=iPhone12,3 iOS/17.4 city=vlaa isSuspicious=true ip=127.000.6 eventType=LOGIN userId=36
+CEF:0|YourCompany|modul26|1.0|1001|LOGIN|8|biometry=false country=gaer device_info=iPhone12,3 iOS/17.4 city=vlaa isSuspicious=true ip=127.000.6 eventType=LOGIN userId=36
+CEF:0|YourCompany|modul26|1.0|1001|LOGIN|8|biometry=false country=gaer device_info=iPhone12,3 iOS/17.4 city=vlaa isSuspicious=true ip=127.***.***.6 eventType=LOGIN userId=36
+CEF:0|YourCompany|modul26|1.0|1001|LOGIN_ATTEMPT|8|country=UNKNOWN device_info=PostmanRuntime/7.37.3 city=UNKNOWN isSuspicious=true ip=0:0:0:0:0:0:0:1 eventType=LOGIN_ATTEMPT userId=40 email=4*******a@mail.com
+CEF:0|YourCompany|modul26|1.0|1001|LOGIN_ATTEMPT|8|country=UNKNOWN device_info=PostmanRuntime/7.37.3 city=UNKNOWN isSuspicious=true ip=0:0:0:0:0:0:0:1 eventType=LOGIN_ATTEMPT userId=40
+CEF:0|YourCompany|modul26|1.0|1001|LOGIN_ATTEMPT|8|country=UNKNOWN device_info=PostmanRuntime/7.37.3 city=UNKNOWN isSuspicious=true ip=0:0:0:0:0:0:0:1 eventType=LOGIN_ATTEMPT userId=40
+CEF:0|YourCompany|modul26|1.0|1001|LOGIN_ATTEMPT|8|country=UNKNOWN device_info=PostmanRuntime/7.37.3 city=UNKNOWN isSuspicious=true ip=0:0:0:0:0:0:0:1 eventType=LOGIN_ATTEMPT userId=40
+CEF:0|YourCompany|modul26|1.0|1001|LOGIN_ATTEMPT|8|country=UNKNOWN device_info=PostmanRuntime/7.37.3 city=UNKNOWN isSuspicious=true ip=0:0:0:0:0:0:0:1 eventType=LOGIN_ATTEMPT userId=39
+CEF:0|YourCompany|modul26|1.0|1001|LOGIN_ATTEMPT|8|country=UNKNOWN device_info=PostmanRuntime/7.37.3 city=UNKNOWN isSuspicious=true ip=0:0:0:0:0:0:0:1 eventType=LOGIN_ATTEMPT userId=39
+CEF:0|YourCompany|modul26|1.0|1001|LOGIN_ATTEMPT|8|country=UNKNOWN device_info=PostmanRuntime/7.37.3 city=UNKNOWN isSuspicious=true ip=0:0:0:0:0:0:0:1 eventType=LOGIN_ATTEMPT userId=39
+CEF:0|YourCompany|modul26|1.0|1001|LOGIN_ATTEMPT|8|country=UNKNOWN device_info=PostmanRuntime/7.37.3 city=UNKNOWN isSuspicious=true ip=0:0:0:0:0:0:0:1 eventType=LOGIN_ATTEMPT userId=39
+CEF:0|YourCompany|modul26|1.0|1001|LOGIN|8|biometry=false country=gaer device_info=iPhone12,3 iOS/17.4 city=vlaa isSuspicious=true ip=127.0**.***.6 eventType=LOGIN userId=39
+CEF:0|YourCompany|modul26|1.0|1001|LOGIN|8|biometry=false country=gaer device_info=iPhone12,3 iOS/17.4 city=vlaa isSuspicious=true ip=127.0**.***.6 eventType=LOGIN userId=39
+CEF:0|YourCompany|modul26|1.0|1001|LOGIN|8|biometry=false country=gaer device_info=iPhone12,3 iOS/17.4 city=vlaa isSuspicious=true ip=127.0**.***.6 eventType=LOGIN userId=39
+CEF:0|YourCompany|modul26|1.0|1001|LOGIN|8|biometry=true country=gaer device_info=iPhone12,3 iOS/17.4 city=vla isSuspicious=true ip=127.0**.***.6 eventType=LOGIN userId=39
+CEF:0|YourCompany|modul26|1.0|1001|LOGIN|8|biometry=true country=gaer device_info=iPhone12,3 iOS/17.4 city=vl4a isSuspicious=true ip=127.0**.***.6 eventType=LOGIN userId=39
+CEF:0|YourCompany|modul26|1.0|1001|LOGIN|8|biometry=true country=gaer device_info=iPhone12,3 iOS/17.4 city=vl4a isSuspicious=true ip=127.0**.***.1 eventType=LOGIN userId=39
+CEF:0|YourCompany|modul26|1.0|1001|LOGIN|8|biometry=false country=gaer device_info=iPhone12,3 iOS/17.4 city=vl4a isSuspicious=true ip=127.0**.***.1 eventType=LOGIN userId=39
+CEF:0|YourCompany|modul26|1.0|1001|LOGIN|8|biometry=false country=gaer device_info=iPhone12,3 iOS/17.4 city=vl4a isSuspicious=true ip=127.0**.***.1 eventType=LOGIN userId=39
+CEF:0|YourCompany|modul26|1.0|1001|LOGIN|8|biometry=false country=gaer device_info=iPhone12,3 iOS/17.4 city=vl4a isSuspicious=true ip=127.0**.***.1 eventType=LOGIN userId=39

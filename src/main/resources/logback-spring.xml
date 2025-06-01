@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <!-- Основной логгер приложения -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>RO %d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- CEF-логгер: отдельный файл для событий в формате CEF -->
+    <appender name="CEF-FILE" class="ch.qos.logback.core.FileAppender">
+        <file>logs/cef.log</file>
+        <append>true</append>
+        <encoder>
+            <pattern>%msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- Логгер для CEF -->
+    <logger name="cefLogger" level="INFO" additivity="false">
+        <appender-ref ref="CEF-FILE" />
+    </logger>
+
+    <!-- Основной root логгер -->
+    <root level="INFO">
+        <appender-ref ref="STDOUT" />
+    </root>
+</configuration>
