@@ -29,8 +29,6 @@ public class SecurityLog {
     @Column(name = "ip_address", nullable = false, length = 45)
     private String ipAddress;
 
-
-
     @Column(name = "device_info", length = 255)
     private String deviceInfo;
 
@@ -50,19 +48,27 @@ public class SecurityLog {
 
     @PrePersist
     public void prePersist() {
+        handleNulls();
+    }
+
+    @PreUpdate
+    public void preUpdate() {
+        handleNulls();
+    }
+
+    private void handleNulls() {
         if (this.createdAt == null) {
             this.createdAt = LocalDateTime.now();
         }
         if (this.isSuspicious == null) {
             this.isSuspicious = false;
         }
-        // 🛡️ Надежная страховка для ipAddress
+        // 🛡️ Защита для ipAddress!
         if (this.ipAddress == null || this.ipAddress.trim().isEmpty() ||
                 this.ipAddress.equalsIgnoreCase("null") ||
-                this.ipAddress.equals("0:0:0:0:0:0:0:1") ||
-                this.ipAddress.equals("127.0.0.1")) {
+                "0:0:0:0:0:0:0:1".equals(this.ipAddress) ||
+                "127.0.0.1".equals(this.ipAddress)) {
             this.ipAddress = "UNKNOWN";
         }
-
     }
 }
