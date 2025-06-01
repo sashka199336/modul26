@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>RegistrationController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">modul26</a> &gt; <a href="index.source.html" class="el_package">com.globus.modul26.controller</a> &gt; <span class="el_source">RegistrationController.java</span></div><h1>RegistrationController.java</h1><pre class="source lang-java linenums">package com.globus.modul26.controller;
+
+import com.globus.modul26.model.Role;
+import com.globus.modul26.model.User;
+import com.globus.modul26.repository.UserRepository;
+import com.globus.modul26.dto.RegisterRequest;
+import com.globus.modul26.dto.RegisterResponse;
+import com.globus.modul26.service.JwtService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
+
+@RestController
+@RequestMapping(&quot;/api/auth&quot;)
+public class RegistrationController {
+
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
+
+    public RegistrationController(
+            UserRepository userRepository,
+            PasswordEncoder passwordEncoder,
+            JwtService jwtService
+<span class="fc" id="L27">    ) {</span>
+<span class="fc" id="L28">        this.userRepository = userRepository;</span>
+<span class="fc" id="L29">        this.passwordEncoder = passwordEncoder;</span>
+<span class="fc" id="L30">        this.jwtService = jwtService;</span>
+<span class="fc" id="L31">    }</span>
+
+    @PostMapping(&quot;/register&quot;)
+    public ResponseEntity&lt;?&gt; registerUser(@RequestBody RegisterRequest req) {
+        // Проверка обязательных полей
+<span class="nc bnc" id="L36" title="All 4 branches missed.">        if (req.getUsername() == null || req.getUsername().isBlank() ||</span>
+<span class="nc bnc" id="L37" title="All 4 branches missed.">                req.getPassword() == null || req.getPassword().isBlank() ||</span>
+<span class="nc bnc" id="L38" title="All 4 branches missed.">                req.getEmail() == null || req.getEmail().isBlank() ||</span>
+<span class="nc bnc" id="L39" title="All 4 branches missed.">                req.getFirstName() == null || req.getFirstName().isBlank() ||</span>
+<span class="nc bnc" id="L40" title="All 4 branches missed.">                req.getLastName() == null || req.getLastName().isBlank() ||</span>
+<span class="nc bnc" id="L41" title="All 4 branches missed.">                req.getRole() == null || req.getRole().isBlank()) {</span>
+<span class="nc" id="L42">            return ResponseEntity.badRequest().body(&quot;Заполните все обязательные поля&quot;);</span>
+        }
+
+        // Проверка email на уникальность
+<span class="nc bnc" id="L46" title="All 2 branches missed.">        if (userRepository.existsByEmail(req.getEmail())) {</span>
+<span class="nc" id="L47">            return ResponseEntity.badRequest().body(&quot;Email уже используется&quot;);</span>
+        }
+
+        // Проверка username на уникальность
+<span class="nc bnc" id="L51" title="All 2 branches missed.">        if (userRepository.existsByUsername(req.getUsername())) {</span>
+<span class="nc" id="L52">            return ResponseEntity.badRequest().body(&quot;Username уже используется&quot;);</span>
+        }
+
+        // Конверсия роли из String в Enum
+        Role userRole;
+        try {
+<span class="nc" id="L58">            userRole = Role.valueOf(req.getRole());</span>
+<span class="nc" id="L59">        } catch (IllegalArgumentException e) {</span>
+<span class="nc" id="L60">            return ResponseEntity.badRequest().body(&quot;Некорректная роль: &quot; + req.getRole());</span>
+<span class="nc" id="L61">        }</span>
+
+        // Создаеие пользователя
+<span class="nc" id="L64">        User user = new User();</span>
+<span class="nc" id="L65">        user.setUsername(req.getUsername());</span>
+<span class="nc" id="L66">        user.setEmail(req.getEmail());</span>
+<span class="nc" id="L67">        user.setPassword(passwordEncoder.encode(req.getPassword()));</span>
+<span class="nc" id="L68">        user.setFirstName(req.getFirstName());</span>
+<span class="nc" id="L69">        user.setLastName(req.getLastName());</span>
+<span class="nc" id="L70">        user.setPhone(req.getPhone());</span>
+<span class="nc" id="L71">        user.setRole(userRole);</span>
+<span class="nc" id="L72">        user.setCreatedAt(LocalDateTime.now());</span>
+
+<span class="nc" id="L74">        userRepository.save(user);</span>
+
+        // Генерирация токена
+<span class="nc" id="L77">        String jwtToken = jwtService.generateToken(user);</span>
+
+        // Маскировка email
+<span class="nc" id="L80">        String maskedEmail = maskEmail(user.getEmail());</span>
+
+        // Формирование ОТВЕТа :
+<span class="nc" id="L83">        RegisterResponse response = new RegisterResponse(</span>
+<span class="nc" id="L84">                user.getId(),</span>
+<span class="nc" id="L85">                user.getUsername(),</span>
+                maskedEmail,
+<span class="nc" id="L87">                user.getFirstName(),</span>
+<span class="nc" id="L88">                user.getLastName(),</span>
+<span class="nc" id="L89">                user.getPhone(),</span>
+<span class="nc" id="L90">                user.getRole().toString()</span>
+
+
+        );
+
+<span class="nc" id="L95">        return ResponseEntity.ok(response);</span>
+    }
+
+    // --- Утилита для маскировки email ---
+    private String maskEmail(String email) {
+<span class="nc bnc" id="L100" title="All 4 branches missed.">        if (email == null || !email.contains(&quot;@&quot;)) return email;</span>
+<span class="nc" id="L101">        String[] parts = email.split(&quot;@&quot;);</span>
+<span class="nc" id="L102">        String name = parts[0];</span>
+<span class="nc" id="L103">        String domain = parts[1];</span>
+<span class="nc bnc" id="L104" title="All 2 branches missed.">        String maskedName = name.length() &lt;= 2 ? name + &quot;**&quot; : name.substring(0, 2) + &quot;**&quot;;</span>
+<span class="nc" id="L105">        int dotIndex = domain.indexOf('.');</span>
+<span class="nc bnc" id="L106" title="All 2 branches missed.">        String domainName = dotIndex &gt; 0 ? domain.substring(0, dotIndex) : domain;</span>
+<span class="nc bnc" id="L107" title="All 2 branches missed.">        String domainZone = dotIndex &gt; 0 ? domain.substring(dotIndex) : &quot;&quot;;</span>
+<span class="nc bnc" id="L108" title="All 2 branches missed.">        String maskedDomain = domainName.length() &lt;= 2</span>
+<span class="nc" id="L109">                ? domainName + &quot;****&quot;</span>
+<span class="nc" id="L110">                : domainName.substring(0, 2) + &quot;****&quot;;</span>
+<span class="nc" id="L111">        return maskedName + &quot;@&quot; + maskedDomain + domainZone;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

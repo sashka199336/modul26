@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>SecurityConfig.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">modul26</a> &gt; <a href="index.source.html" class="el_package">com.globus.modul26.config</a> &gt; <span class="el_source">SecurityConfig.java</span></div><h1>SecurityConfig.java</h1><pre class="source lang-java linenums">package com.globus.modul26.config;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.servlet.FilterRegistrationBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.JwtDecoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.web.filter.OncePerRequestFilter;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import javax.crypto.spec.SecretKeySpec;
+import java.io.IOException;
+
+@Configuration
+@EnableWebSecurity
+<span class="fc" id="L28">public class SecurityConfig {</span>
+
+    @Value(&quot;${myproject.jwt.secret:super-secure-random-string-change-me-please-super-long}&quot;)
+    private String secret;
+
+    //  Декодер для JWT-токенов
+    @Bean
+    public JwtDecoder jwtDecoder() {
+<span class="fc" id="L36">        SecretKeySpec secretKey = new SecretKeySpec(secret.getBytes(), &quot;HmacSHA256&quot;);</span>
+<span class="fc" id="L37">        return NimbusJwtDecoder.withSecretKey(secretKey).build();</span>
+    }
+
+    //  Шифратор для паролей
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+<span class="fc" id="L43">        return new BCryptPasswordEncoder();</span>
+    }
+
+    // ⚡ Разборщик ролей из токена (claim &quot;roles&quot;)
+    @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+<span class="fc" id="L49">        JwtGrantedAuthoritiesConverter gac = new JwtGrantedAuthoritiesConverter();</span>
+<span class="fc" id="L50">        gac.setAuthoritiesClaimName(&quot;roles&quot;);</span>
+<span class="fc" id="L51">        gac.setAuthorityPrefix(&quot;ROLE_&quot;); // для .hasRole(&quot;ADMIN&quot;) и т.п.</span>
+
+<span class="fc" id="L53">        JwtAuthenticationConverter converter = new JwtAuthenticationConverter();</span>
+<span class="fc" id="L54">        converter.setJwtGrantedAuthoritiesConverter(gac);</span>
+<span class="fc" id="L55">        return converter;</span>
+    }
+
+    // 🛡 НастрЙки доступа и аутентификации
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+<span class="fc" id="L61">        http</span>
+<span class="fc" id="L62">                .csrf().disable()</span>
+<span class="fc" id="L63">                .authorizeHttpRequests(authz -&gt; authz</span>
+
+<span class="fc" id="L65">                        .requestMatchers(</span>
+                                &quot;/swagger-ui/**&quot;,
+                                &quot;/swagger-ui.html&quot;,
+                                &quot;/v3/api-docs/**&quot;,
+                                &quot;/swagger-resources/**&quot;,
+                                &quot;/swagger/api-docs/**&quot;,
+                                &quot;/webjars/**&quot;,
+                                &quot;/doc.html&quot;
+<span class="fc" id="L73">                        ).permitAll()</span>
+                        // 👇 Открываем регистрацию/логин
+<span class="fc" id="L75">                        .requestMatchers(</span>
+                                &quot;/api/auth/register&quot;,
+                                &quot;/api/auth/login&quot;
+<span class="fc" id="L78">                        ).permitAll()</span>
+                        // 👇 ОТКРЫВАЕМ ДЛЯ PROMETHEUS
+<span class="fc" id="L80">                        .requestMatchers(&quot;/actuator/prometheus&quot;).permitAll()</span>
+                        // 👇 Доступы к API логирования
+<span class="fc" id="L82">                        .requestMatchers(&quot;/api/logs/user/**&quot;).hasAnyRole(&quot;ADMIN&quot;, &quot;USER&quot;)</span>
+<span class="fc" id="L83">                        .requestMatchers(&quot;/api/logs/suspicious&quot;).hasRole(&quot;ADMIN&quot;)</span>
+<span class="fc" id="L84">                        .requestMatchers(&quot;/api/logs/event&quot;).hasAnyRole(&quot;ADMIN&quot;, &quot;USER&quot;)</span>
+                        // 👇 Всё остальное — только авторизированным
+<span class="fc" id="L86">                        .anyRequest().authenticated()</span>
+                )
+<span class="fc" id="L88">                .oauth2ResourceServer(oauth2 -&gt;</span>
+<span class="fc" id="L89">                        oauth2.jwt(jwt -&gt;</span>
+<span class="fc" id="L90">                                jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())</span>
+                        )
+                );
+<span class="fc" id="L93">        return http.build();</span>
+    }
+
+    //  Фильтр для логирования b заголовка Authorization
+    @Bean
+    public FilterRegistrationBean&lt;OncePerRequestFilter&gt; logHeadersFilter() {
+<span class="fc" id="L99">        FilterRegistrationBean&lt;OncePerRequestFilter&gt; bean = new FilterRegistrationBean&lt;&gt;();</span>
+<span class="fc" id="L100">        bean.setFilter(new OncePerRequestFilter() {</span>
+            @Override
+            protected void doFilterInternal(HttpServletRequest req, HttpServletResponse res, FilterChain chain)
+                    throws IOException, ServletException {
+<span class="nc" id="L104">                System.out.println(&quot;AUTH HEADER: &quot; + req.getHeader(&quot;Authorization&quot;));</span>
+<span class="nc" id="L105">                chain.doFilter(req, res);</span>
+<span class="nc" id="L106">            }</span>
+        });
+<span class="fc" id="L108">        bean.addUrlPatterns(&quot;/*&quot;);</span>
+<span class="fc" id="L109">        bean.setOrder(1);</span>
+<span class="fc" id="L110">        return bean;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>AuthController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">modul26</a> &gt; <a href="index.source.html" class="el_package">com.globus.modul26.controller</a> &gt; <span class="el_source">AuthController.java</span></div><h1>AuthController.java</h1><pre class="source lang-java linenums">package com.globus.modul26.controller;
+
+import jakarta.servlet.http.HttpServletRequest;
+import java.util.Optional;
+import java.util.Date;
+import java.util.List;
+import java.time.LocalDateTime;
+
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+
+import com.globus.modul26.model.User;
+import com.globus.modul26.model.SecurityLog;
+import com.globus.modul26.repository.UserRepository;
+import com.globus.modul26.service.SecurityLogService;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+@RequestMapping(&quot;/api/auth&quot;)
+public class AuthController {
+
+    private static final String SECRET = &quot;super-secure-random-string-change-me-please-super-long&quot;;
+
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final SecurityLogService securityLogService;
+
+    @Autowired
+    public AuthController(UserRepository userRepository,
+                          PasswordEncoder passwordEncoder,
+<span class="nc" id="L35">                          SecurityLogService securityLogService) {</span>
+<span class="nc" id="L36">        this.userRepository = userRepository;</span>
+<span class="nc" id="L37">        this.passwordEncoder = passwordEncoder;</span>
+<span class="nc" id="L38">        this.securityLogService = securityLogService;</span>
+<span class="nc" id="L39">    }</span>
+
+    @PostMapping(&quot;/login&quot;)
+    public ResponseEntity&lt;?&gt; login(@RequestBody LoginRequest login, HttpServletRequest request) {
+<span class="nc" id="L43">        Optional&lt;User&gt; userOpt = userRepository.findByUsername(login.getUsername());</span>
+<span class="nc" id="L44">        Long userId = userOpt.map(User::getId).orElse(null);</span>
+
+        //  Проверка блокировкИ пользо вателя
+<span class="nc bnc" id="L47" title="All 4 branches missed.">        if (userOpt.isPresent() &amp;&amp; Boolean.TRUE.equals(userOpt.get().getLocked())) {</span>
+            // Логируем попытку входа для уже заблокированного юзера
+<span class="nc" id="L49">            securityLogService.saveLog(SecurityLog.builder()</span>
+<span class="nc" id="L50">                    .userId(userId)</span>
+<span class="nc" id="L51">                    .eventType(&quot;LOGIN_ATTEMPT&quot;)</span>
+<span class="nc" id="L52">                    .ipAddress(request.getRemoteAddr())</span>
+<span class="nc" id="L53">                    .isSuspicious(true)</span>
+<span class="nc" id="L54">                    .deviceInfo(request.getHeader(&quot;User-Agent&quot;))</span>
+<span class="nc" id="L55">                    .createdAt(LocalDateTime.now())</span>
+<span class="nc" id="L56">                    .build()</span>
+            );
+<span class="nc" id="L58">            return ResponseEntity.status(403).body(&quot;Пользователь заблокирован из-за многократных неудачных попыток входа&quot;);</span>
+        }
+
+<span class="nc bnc" id="L61" title="All 2 branches missed.">        boolean success = userOpt.isPresent()</span>
+<span class="nc bnc" id="L62" title="All 2 branches missed.">                &amp;&amp; passwordEncoder.matches(login.getPassword(), userOpt.get().getPassword());</span>
+
+        //  Логироваан попытку входа
+<span class="nc" id="L65">        securityLogService.saveLog(SecurityLog.builder()</span>
+<span class="nc" id="L66">                .userId(userId)</span>
+<span class="nc" id="L67">                .eventType(&quot;LOGIN_ATTEMPT&quot;)</span>
+<span class="nc bnc" id="L68" title="All 2 branches missed.">                .ipAddress(request.getRemoteAddr())</span>
+<span class="nc" id="L69">                .isSuspicious(!success)  // true - если неудачная попытка</span>
+<span class="nc" id="L70">                .deviceInfo(request.getHeader(&quot;User-Agent&quot;))</span>
+<span class="nc" id="L71">                .createdAt(LocalDateTime.now())</span>
+<span class="nc" id="L72">                .build()</span>
+        );
+
+        // 3. Если не успех — блок
+<span class="nc bnc" id="L76" title="All 2 branches missed.">        if (!success) {</span>
+<span class="nc bnc" id="L77" title="All 2 branches missed.">            if (userOpt.isPresent()) {</span>
+<span class="nc" id="L78">                User user = userOpt.get();</span>
+
+                // 3 попытки входа для пользователя
+<span class="nc" id="L81">                List&lt;SecurityLog&gt; lastAttempts = securityLogService.getLastLoginAttempts(user.getId(), 3);</span>
+
+                // пПРОВЕРКА все ли последниХ 3  ПОПЫТОК
+<span class="nc bnc" id="L84" title="All 2 branches missed.">                boolean lastThreeFailed = lastAttempts.size() == 3 &amp;&amp;</span>
+<span class="nc bnc" id="L85" title="All 2 branches missed.">                        lastAttempts.stream().allMatch(SecurityLog::getIsSuspicious);</span>
+
+<span class="nc bnc" id="L87" title="All 2 branches missed.">                if (lastThreeFailed) {</span>
+<span class="nc" id="L88">                    user.setLocked(true);</span>
+<span class="nc" id="L89">                    userRepository.save(user);</span>
+<span class="nc" id="L90">                    return ResponseEntity.status(403)</span>
+<span class="nc" id="L91">                            .body(&quot;Пользователь заблокирован из-за 3 неудачных попыток входа подряд&quot;);</span>
+                }
+            }
+<span class="nc" id="L94">            return ResponseEntity.status(401).body(&quot;Неверный логин или пароль&quot;);</span>
+        }
+
+        //  Если ок — обновляение время последнего входа
+<span class="nc" id="L98">        User user = userOpt.get();</span>
+<span class="nc" id="L99">        user.setLastLogin(LocalDateTime.now());</span>
+<span class="nc" id="L100">        userRepository.save(user);</span>
+
+<span class="nc" id="L102">        String token = Jwts.builder()</span>
+<span class="nc" id="L103">                .setSubject(user.getId().toString())</span>
+<span class="nc" id="L104">                .claim(&quot;roles&quot;, List.of(user.getRole().name()))</span>
+<span class="nc" id="L105">                .claim(&quot;email&quot;, user.getEmail())</span>
+<span class="nc" id="L106">                .setIssuedAt(new Date())</span>
+<span class="nc" id="L107">                .setExpiration(new Date(System.currentTimeMillis() + 60 * 60 * 1000))</span>
+<span class="nc" id="L108">                .signWith(SignatureAlgorithm.HS256, SECRET.getBytes())</span>
+<span class="nc" id="L109">                .compact();</span>
+
+<span class="nc" id="L111">        return ResponseEntity.ok(new JwtResponse(token));</span>
+    }
+
+    // DTO для логина
+<span class="nc" id="L115">    static class LoginRequest {</span>
+        private String username;
+        private String password;
+<span class="nc" id="L118">        public String getUsername() { return username; }</span>
+<span class="nc" id="L119">        public void setUsername(String username) { this.username = username; }</span>
+<span class="nc" id="L120">        public String getPassword() { return password; }</span>
+<span class="nc" id="L121">        public void setPassword(String password) { this.password = password; }</span>
+    }
+
+    // DTO для ответа с токеном
+    static class JwtResponse {
+        private String token;
+<span class="nc" id="L127">        public JwtResponse(String token) { this.token = token; }</span>
+<span class="nc" id="L128">        public String getToken() { return token; }</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

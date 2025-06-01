@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="ru"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>LogRotator.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">modul26</a> &gt; <a href="index.source.html" class="el_package">com.globus.modul26.util</a> &gt; <span class="el_source">LogRotator.java</span></div><h1>LogRotator.java</h1><pre class="source lang-java linenums">package com.globus.modul26.util;
+import jakarta.annotation.PostConstruct;
+import org.springframework.stereotype.Component;
+
+import java.io.*;
+import java.nio.file.*;
+import java.time.*;
+import java.time.format.DateTimeFormatter;
+import java.util.*;
+import java.util.stream.Stream;
+import java.util.zip.GZIPOutputStream;
+
+@Component
+<span class="fc" id="L14">public class LogRotator {</span>
+
+    private static final String LOG_FILE = &quot;logs/cef.log&quot;;
+    private static final String BACKUP_DIR = &quot;log/cef/backup&quot;;
+    private static final String ARCHIVE_DIR = &quot;log/cef/archive&quot;;
+
+
+<span class="fc" id="L21">    private static final DateTimeFormatter DAY_FMT = DateTimeFormatter.ofPattern(&quot;yyyy-MM-dd&quot;);</span>
+<span class="fc" id="L22">    private static final DateTimeFormatter MONTH_FMT = DateTimeFormatter.ofPattern(&quot;yyyy-MM&quot;);</span>
+
+    @PostConstruct
+    public void onStartup() throws IOException {
+<span class="fc" id="L26">        Files.createDirectories(Paths.get(BACKUP_DIR));</span>
+<span class="fc" id="L27">        Files.createDirectories(Paths.get(ARCHIVE_DIR));</span>
+
+<span class="fc" id="L29">        LocalDate today = LocalDate.now();</span>
+<span class="fc" id="L30">        String todayName = &quot;cef-&quot; + DAY_FMT.format(today) + &quot;.log&quot;;</span>
+<span class="fc" id="L31">        String monthName = &quot;cef-&quot; + MONTH_FMT.format(today) + &quot;.tar.gz&quot;;</span>
+
+
+<span class="fc" id="L34">        boolean needDailyBackup = true;</span>
+<span class="fc" id="L35">        try (Stream&lt;Path&gt; files = Files.list(Paths.get(BACKUP_DIR))) {</span>
+<span class="fc" id="L36">            needDailyBackup = files</span>
+<span class="fc" id="L37">                    .map(path -&gt; path.getFileName().toString())</span>
+<span class="fc" id="L38">                    .noneMatch(fname -&gt; fname.equals(todayName));</span>
+        }
+
+<span class="pc bpc" id="L41" title="1 of 2 branches missed.">        if (needDailyBackup) {</span>
+<span class="nc" id="L42">            Files.copy(Paths.get(LOG_FILE), Paths.get(BACKUP_DIR, todayName), StandardCopyOption.REPLACE_EXISTING);</span>
+<span class="nc" id="L43">            System.out.println(&quot;Daily log backup created: &quot; + todayName);</span>
+        }
+
+
+<span class="fc" id="L47">        boolean needMonthlyArchive = true;</span>
+<span class="fc" id="L48">        try (Stream&lt;Path&gt; files = Files.list(Paths.get(ARCHIVE_DIR))) {</span>
+<span class="fc" id="L49">            needMonthlyArchive = files</span>
+<span class="fc" id="L50">                    .map(path -&gt; path.getFileName().toString())</span>
+<span class="fc" id="L51">                    .noneMatch(fname -&gt; fname.equals(monthName));</span>
+        }
+
+<span class="pc bpc" id="L54" title="1 of 2 branches missed.">        if (needMonthlyArchive) {</span>
+
+<span class="fc" id="L56">            LocalDate firstDayOfMonth = today.withDayOfMonth(1);</span>
+<span class="fc" id="L57">            LocalDate prevMonth = firstDayOfMonth.minusDays(1);</span>
+<span class="fc" id="L58">            String prevMonthPrefix = &quot;cef-&quot; + MONTH_FMT.format(prevMonth);</span>
+
+<span class="fc" id="L60">            List&lt;Path&gt; filesToArchive = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L61">            try (Stream&lt;Path&gt; files = Files.list(Paths.get(BACKUP_DIR))) {</span>
+<span class="fc" id="L62">                filesToArchive = files</span>
+<span class="fc" id="L63">                        .filter(f -&gt; f.getFileName().toString().startsWith(prevMonthPrefix))</span>
+<span class="fc" id="L64">                        .toList();</span>
+            }
+<span class="pc bpc" id="L66" title="1 of 2 branches missed.">            if (!filesToArchive.isEmpty()) {</span>
+<span class="fc" id="L67">                Path archivePath = Paths.get(ARCHIVE_DIR, &quot;cef-&quot; + MONTH_FMT.format(prevMonth) + &quot;.tar.gz&quot;);</span>
+<span class="fc" id="L68">                createTarGzArchive(filesToArchive, archivePath);</span>
+<span class="fc" id="L69">                System.out.println(&quot;Monthly archive created: &quot; + archivePath.getFileName());</span>
+                // Можно удалить старые бэкапы, если надо
+            }
+        }
+<span class="fc" id="L73">    }</span>
+
+    private void createTarGzArchive(List&lt;Path&gt; files, Path archivePath) throws IOException {
+
+<span class="fc" id="L77">        try (FileOutputStream fos = new FileOutputStream(archivePath.toFile());</span>
+<span class="fc" id="L78">             GZIPOutputStream gos = new GZIPOutputStream(fos)) {</span>
+<span class="fc bfc" id="L79" title="All 2 branches covered.">            for (Path file : files) {</span>
+<span class="fc" id="L80">                Files.copy(file, gos);</span>
+<span class="fc" id="L81">            }</span>
+        }
+<span class="fc" id="L83">    }</span>
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.10.202304240956</span></div></body></html>

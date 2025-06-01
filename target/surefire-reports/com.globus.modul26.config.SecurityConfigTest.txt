@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.globus.modul26.config.SecurityConfigTest
+-------------------------------------------------------------------------------
+Tests run: 5, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 5.615 s -- in com.globus.modul26.config.SecurityConfigTest
