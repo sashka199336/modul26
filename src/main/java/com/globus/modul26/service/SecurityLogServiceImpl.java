@@ -1,5 +1,6 @@
 package com.globus.modul26.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.globus.modul26.model.SecurityLog;
 import com.globus.modul26.repository.SecurityLogRepository;
 import com.globus.modul26.util.CefUtil;
@@ -19,16 +20,40 @@ public class SecurityLogServiceImpl implements SecurityLogService {
             "USA", "UKR", "POL"
     );
     private static final Logger cefLogger = LoggerFactory.getLogger("cefLogger");
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public SecurityLogServiceImpl(SecurityLogRepository repository) {
         this.repository = repository;
     }
 
+    // --- ВАЖНО: Добавляем универсальный метод парсинга geoJson ---
+    private Map<String, String> parseCountryAndCityFromGeoJson(String geoJsonString) {
+        Map<String, String> geo = new HashMap<>();
+        if (geoJsonString == null || geoJsonString.isEmpty()) {
+            geo.put("country", "UNKNOWN");
+            geo.put("city", "UNKNOWN");
+            return geo;
+        }
+        try {
+            Map<String, Object> parsed = objectMapper.readValue(geoJsonString, Map.class);
+            String country = parsed.get("country_code_iso3") != null ? parsed.get("country_code_iso3").toString() : "UNKNOWN";
+            String city = parsed.get("city") != null ? parsed.get("city").toString() : "UNKNOWN";
+            geo.put("country", country);
+            geo.put("city", city);
+        } catch (Exception e) {
+            geo.put("country", "UNKNOWN");
+            geo.put("city", "UNKNOWN");
+        }
+        return geo;
+    }
+
     @Transactional
-    public void logEvent(Long userId, String eventType, String ipAddress, String deviceInfo, Boolean biometryUsed) {
+    public void logEvent(Long userId, String eventType, String ipAddress, String deviceInfo, Boolean biometryUsed, String geoJsonString) {
+        Map<String, String> geo = parseCountryAndCityFromGeoJson(geoJsonString);
+
         Map<String, Object> metadata = new HashMap<>();
-        metadata.put("country", "UNKNOWN");
-        metadata.put("city", "UNKNOWN");
+        metadata.put("country", geo.get("country"));
+        metadata.put("city", geo.get("city"));
 
         SecurityLog log = SecurityLog.builder()
                 .userId(userId)
@@ -44,10 +69,12 @@ public class SecurityLogServiceImpl implements SecurityLogService {
     }
 
     @Transactional
-    public void logLoginAttempt(Long userId, String ipAddress, String deviceInfo, boolean success) {
+    public void logLoginAttempt(Long userId, String ipAddress, String deviceInfo, boolean success, String geoJsonString) {
+        Map<String, String> geo = parseCountryAndCityFromGeoJson(geoJsonString);
+
         Map<String, Object> metadata = new HashMap<>();
-        metadata.put("country", "UNKNOWN");
-        metadata.put("city", "UNKNOWN");
+        metadata.put("country", geo.get("country"));
+        metadata.put("city", geo.get("city"));
 
         SecurityLog log = SecurityLog.builder()
                 .userId(userId)
@@ -209,6 +236,8 @@ public class SecurityLogServiceImpl implements SecurityLogService {
 
     @Override
     public List<SecurityLog> getLastLoginAttempts(Long userId, int limit) {
+        // Если limit нужно использовать, скорректируй тут!
+        // Сейчас фиксированно 3 как в исходнике
         return repository.findTop3ByUserIdAndEventTypeOrderByCreatedAtDesc(userId, "LOGIN_ATTEMPT");
     }
 
