@@ -39,8 +39,10 @@ public class SecurityLogController {
         String clientIp = getClientIp(request);
         String maskedIp = maskIp(clientIp);
 
-      
-        if (maskedIp == null || maskedIp.trim().isEmpty() || maskedIp.equals(clientIp) || maskedIp.equals("null") || maskedIp.toLowerCase().contains("unknown") || maskedIp.equals("0:0:0:0:0:0:0:1")) {
+        // 🛡️ Гарантированная маскировка и защита от null/UNKNOWN/localhost
+        if (maskedIp == null || maskedIp.trim().isEmpty() || maskedIp.equals("null") ||
+                maskedIp.toLowerCase().contains("unknown") ||
+                maskedIp.equals("0:0:0:0:0:0:0:1") || maskedIp.equals("127.0.0.1")) {
             maskedIp = "UNKNOWN";
         }
         log.setIpAddress(maskedIp);
@@ -55,30 +57,32 @@ public class SecurityLogController {
         String country = geo.getOrDefault("country", "Unknown");
         String city = geo.getOrDefault("city", "Unknown");
 
-       
+        // Сохраняем метаданные
         Map<String, Object> metadataMap;
         if (log.getMetadata() instanceof Map) {
             metadataMap = new HashMap<>((Map<String, Object>) log.getMetadata());
         } else {
             metadataMap = new HashMap<>();
         }
-
         metadataMap.put("country", country);
         metadataMap.put("city", city);
-
         if (!"Unknown".equals(platform)) {
             metadataMap.put("platform", platform);
         }
         if (!"Unknown".equals(browser)) {
             metadataMap.put("browser", browser);
         }
-
         log.setMetadata(metadataMap);
 
         log.setIsSuspicious(null);
 
         if (log.getBiometryUsed() == null) {
             log.setBiometryUsed(false);
+        }
+
+        // 🚦 ФИНАЛЬНАЯ броня от null ПЕРЕД сохранением
+        if (log.getIpAddress() == null || log.getIpAddress().trim().isEmpty()) {
+            log.setIpAddress("UNKNOWN");
         }
 
         SecurityLog saved = service.saveLog(log);
@@ -127,18 +131,18 @@ public class SecurityLogController {
         throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
     }
 
-    
+    // 🔒 Маскирует IP-адрес
     private static String maskIp(String ip) {
         if (ip == null) return null;
         String[] parts = ip.split("\\.");
-        if (parts.length != 4) return ip;
+        if (parts.length != 4) return ip; // если это IPv6 или некорректно, возвращаем как есть
         String first = parts[0];
         String second = parts[1].isEmpty() ? "*" : parts[1].substring(0, 1);
         String fourth = parts[3];
         return String.format("%s.%s**.***.%s", first, second, fourth);
     }
 
-    
+    // 🌐 Получает реальный IP пользователя
     private static String getClientIp(HttpServletRequest request) {
         String xForwardedFor = request.getHeader("X-Forwarded-For");
         if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
@@ -148,14 +152,20 @@ public class SecurityLogController {
         if (xRealIp != null && !xRealIp.isEmpty()) {
             return xRealIp;
         }
-        return request.getRemoteAddr();
+        String remoteAddr = request.getRemoteAddr();
+        if (remoteAddr != null && !remoteAddr.isEmpty()) {
+            return remoteAddr;
+        }
+        return "UNKNOWN";
     }
 
-    
+    // 🌍 Получает страну и город по IP через ipapi.co (примитивно)
     private static Map<String, String> getGeoDataByIp(String ip) {
         Map<String, String> geoData = new HashMap<>();
         try {
-            if (ip == null || ip.startsWith("127.") || ip.startsWith("192.168.") || ip.startsWith("10.") || ip.equals("0:0:0:0:0:0:0:1")) {
+            if (ip == null || ip.startsWith("127.") || ip.startsWith("192.168.") ||
+                    ip.startsWith("10.") || ip.equals("0:0:0:0:0:0:0:1") ||
+                    ip.equals("UNKNOWN")) {
                 geoData.put("country", "Unknown");
                 geoData.put("city", "Unknown");
                 return geoData;
@@ -172,7 +182,6 @@ public class SecurityLogController {
                 }
                 String json = response.toString();
 
-                // Простейший парсер -- для боевого кода лучше использовать ObjectMapper
                 geoData.put("country", json.replaceAll(".*\"country_name\":\"([^\"]+)\".*", "$1"));
                 geoData.put("city", json.replaceAll(".*\"city\":\"([^\"]+)\".*", "$1"));
             }
@@ -183,7 +192,7 @@ public class SecurityLogController {
         return geoData;
     }
 
-    
+    // 🖥️ Определение браузера
     private static String parseBrowser(String userAgent) {
         if (userAgent == null) return "Unknown";
         if (userAgent.contains("OPR") || userAgent.contains("Opera")) return "Opera";
@@ -194,6 +203,7 @@ public class SecurityLogController {
         return "Unknown";
     }
 
+    // 💻 Определение операционной системы
     private static String parsePlatform(String userAgent) {
         if (userAgent == null) return "Unknown";
         if (userAgent.contains("Windows")) return "Windows";
