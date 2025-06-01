@@ -12,5 +12,22 @@ services:
       - "5432:5432"
     volumes:
       - db-data:/var/lib/postgresql/data
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile # твой Dockerfile для Java 21
+    container_name: modul26-app
+    restart: always
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/modul26
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: postgres
+      # и любые другие переменные для твоего приложения
+    ports:
+      - "8080:8080"
+    depends_on:
+      - db
+
 volumes:
   db-data:
