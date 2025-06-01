@@ -10,13 +10,10 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import jakarta.servlet.http.HttpServletRequest;
-<<<<<<< HEAD
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-=======
->>>>>>> d371487addcb4eb09e3e5293c90bc0eeefcb793e
 import java.util.*;
 
 @RestController
@@ -41,7 +38,6 @@ public class SecurityLogController {
 
         String clientIp = getClientIp(request);
         log.setIpAddress(maskIp(clientIp));
-<<<<<<< HEAD
 
         // --- Получаем User-Agent ---
         String deviceInfo = request.getHeader("User-Agent");
@@ -70,29 +66,6 @@ public class SecurityLogController {
             metadataMap.put("browser", browser);
         }
 
-=======
-
-        // --- Получаем User-Agent ---
-        String deviceInfo = request.getHeader("User-Agent");
-        log.setDeviceInfo(deviceInfo);
-
-        // --- Парсим платформу и браузер ---
-        String browser = parseBrowser(deviceInfo);
-        String platform = parsePlatform(deviceInfo);
-
-        // --- Собираем metadata ---
-        Map<String, Object> metadataMap = log.getMetadata() instanceof Map ?
-                new HashMap<>((Map) log.getMetadata()) : new HashMap<>();
-
-        String country = "Unknown"; // Тут можно добавить определение по IP
-        String city = "Unknown";    // Тут можно добавить определение по IP
-
-        metadataMap.put("country", country);
-        metadataMap.put("city", city);
-        metadataMap.put("platform", platform);
-        metadataMap.put("browser", browser);
-
->>>>>>> d371487addcb4eb09e3e5293c90bc0eeefcb793e
         log.setMetadata(metadataMap);
 
         log.setIsSuspicious(null);
@@ -147,11 +120,6 @@ public class SecurityLogController {
         throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
     }
 
-<<<<<<< HEAD
-    // 🔒 Маскирует IP-адрес
-=======
-    // Маскирует IP-адрес
->>>>>>> d371487addcb4eb09e3e5293c90bc0eeefcb793e
     private static String maskIp(String ip) {
         if (ip == null) return null;
         String[] parts = ip.split("\\.");
@@ -162,11 +130,7 @@ public class SecurityLogController {
         return String.format("%s.%s**.***.%s", first, second, fourth);
     }
 
-<<<<<<< HEAD
-    // 🌐 Получает реальный IP пользователя
-=======
-    // Получает реальный IP пользователя
->>>>>>> d371487addcb4eb09e3e5293c90bc0eeefcb793e
+  
     private static String getClientIp(HttpServletRequest request) {
         String xForwardedFor = request.getHeader("X-Forwarded-For");
         if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
@@ -179,8 +143,7 @@ public class SecurityLogController {
         return request.getRemoteAddr();
     }
 
-<<<<<<< HEAD
-    // 🌍 Определение страны и города по IP через ipapi.co
+   
     private static Map<String, String> getGeoDataByIp(String ip) {
         Map<String, String> geoData = new HashMap<>();
         try {
@@ -213,10 +176,7 @@ public class SecurityLogController {
         return geoData;
     }
 
-    // 🖥️ Браузер
-=======
-    // Больше вариантов браузеров!
->>>>>>> d371487addcb4eb09e3e5293c90bc0eeefcb793e
+   
     private static String parseBrowser(String userAgent) {
         if (userAgent == null) return "Unknown";
         if (userAgent.contains("OPR") || userAgent.contains("Opera")) return "Opera";
@@ -227,11 +187,7 @@ public class SecurityLogController {
         return "Unknown";
     }
 
-<<<<<<< HEAD
-    // 💻 Платформа
-=======
-    // Больше вариантов платформ!
->>>>>>> d371487addcb4eb09e3e5293c90bc0eeefcb793e
+   
     private static String parsePlatform(String userAgent) {
         if (userAgent == null) return "Unknown";
         if (userAgent.contains("Windows")) return "Windows";
@@ -241,8 +197,5 @@ public class SecurityLogController {
         if (userAgent.contains("iPhone") || userAgent.contains("iPad") || userAgent.contains("iOS")) return "iOS";
         return "Unknown";
     }
-<<<<<<< HEAD
 }
-=======
-}
->>>>>>> d371487addcb4eb09e3e5293c90bc0eeefcb793e
+
