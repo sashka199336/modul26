@@ -77,3 +77,4 @@ CEF:0|YourCompany|modul26|1.0|1001|LOGIN_ATTEMPT|8|country=UNKNOWN device_info=P
 CEF:0|YourCompany|modul26|1.0|1001|LOGIN_ATTEMPT|8|country=UNKNOWN device_info=PostmanRuntime/7.37.3 city=UNKNOWN isSuspicious=true ip=0:0:0:0:0:0:0:1 eventType=LOGIN_ATTEMPT userId=6
 CEF:0|YourCompany|modul26|1.0|1001|LOGIN|8|biometry=false country=Unknown device_info=PostmanRuntime/7.37.3 city=Unknown isSuspicious=true ip=0:0:0:0:0:0:0:1 eventType=LOGIN userId=6
 CEF:0|YourCompany|modul26|1.0|1001|LOGIN|8|biometry=false country=Unknown device_info=PostmanRuntime/7.37.3 city=Unknown isSuspicious=true ip=0:0:0:0:0:0:0:1 eventType=LOGIN userId=47
+CEF:0|YourCompany|modul26|1.0|1001|LOGIN|8|biometry=false country=Unknown device_info=PostmanRuntime/7.37.3 city=Unknown isSuspicious=true ip=0:0:0:0:0:0:0:1 eventType=LOGIN userId=47
