@@ -56,5 +56,13 @@ public class SecurityLog {
         if (this.isSuspicious == null) {
             this.isSuspicious = false;
         }
+        // 🛡️ Надежная страховка для ipAddress
+        if (this.ipAddress == null || this.ipAddress.trim().isEmpty() ||
+                this.ipAddress.equalsIgnoreCase("null") ||
+                this.ipAddress.equals("0:0:0:0:0:0:0:1") ||
+                this.ipAddress.equals("127.0.0.1")) {
+            this.ipAddress = "UNKNOWN";
+        }
+
     }
 }
