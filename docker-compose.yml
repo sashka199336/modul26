@@ -16,22 +16,18 @@ services:
   app:
     build:
       context: .
-<<<<<<< HEAD
+
       dockerfile: Dockerfile # твой Dockerfile для Java 21
-=======
+
       dockerfile: Dockerfile  
->>>>>>> d371487addcb4eb09e3e5293c90bc0eeefcb793e
+
     container_name: modul26-app
     restart: always
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/modul26
       SPRING_DATASOURCE_USERNAME: postgres
       SPRING_DATASOURCE_PASSWORD: postgres
-<<<<<<< HEAD
-      # и любые другие переменные для твоего приложения
-=======
-       
->>>>>>> d371487addcb4eb09e3e5293c90bc0eeefcb793e
+
     ports:
       - "8080:8080"
     depends_on:
