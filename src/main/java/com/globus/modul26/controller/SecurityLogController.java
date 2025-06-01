@@ -9,7 +9,7 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
-import jakarta.servlet.http.HttpServletRequest; // <-- только это!
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.*;
 
 @RestController
@@ -35,16 +35,20 @@ public class SecurityLogController {
         String clientIp = getClientIp(request);
         log.setIpAddress(maskIp(clientIp));
 
+        // --- Получаем User-Agent ---
         String deviceInfo = request.getHeader("User-Agent");
         log.setDeviceInfo(deviceInfo);
 
+        // --- Парсим платформу и браузер ---
+        String browser = parseBrowser(deviceInfo);
+        String platform = parsePlatform(deviceInfo);
+
+        // --- Собираем metadata ---
         Map<String, Object> metadataMap = log.getMetadata() instanceof Map ?
                 new HashMap<>((Map) log.getMetadata()) : new HashMap<>();
 
-        String country = "Unknown";
-        String city = "Unknown";
-        String browser = parseBrowser(deviceInfo);
-        String platform = parsePlatform(deviceInfo);
+        String country = "Unknown"; // Тут можно добавить определение по IP
+        String city = "Unknown";    // Тут можно добавить определение по IP
 
         metadataMap.put("country", country);
         metadataMap.put("city", city);
@@ -105,6 +109,7 @@ public class SecurityLogController {
         throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
     }
 
+    // Маскирует IP-адрес
     private static String maskIp(String ip) {
         if (ip == null) return null;
         String[] parts = ip.split("\\.");
@@ -115,7 +120,7 @@ public class SecurityLogController {
         return String.format("%s.%s**.***.%s", first, second, fourth);
     }
 
-    // Используем jakarta.servlet.http.HttpServletRequest!
+    // Получает реальный IP пользователя
     private static String getClientIp(HttpServletRequest request) {
         String xForwardedFor = request.getHeader("X-Forwarded-For");
         if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
@@ -128,21 +133,25 @@ public class SecurityLogController {
         return request.getRemoteAddr();
     }
 
+    // Больше вариантов браузеров!
     private static String parseBrowser(String userAgent) {
         if (userAgent == null) return "Unknown";
+        if (userAgent.contains("OPR") || userAgent.contains("Opera")) return "Opera";
+        if (userAgent.contains("Edg") || userAgent.contains("Edge")) return "Edge";
         if (userAgent.contains("Chrome")) return "Chrome";
         if (userAgent.contains("Firefox")) return "Firefox";
-        if (userAgent.contains("Safari")) return "Safari";
+        if (userAgent.contains("Safari") && !userAgent.contains("Chrome")) return "Safari";
         return "Unknown";
     }
 
+    // Больше вариантов платформ!
     private static String parsePlatform(String userAgent) {
         if (userAgent == null) return "Unknown";
         if (userAgent.contains("Windows")) return "Windows";
-        if (userAgent.contains("Mac OS")) return "Mac";
+        if (userAgent.contains("Mac OS") || userAgent.contains("Macintosh")) return "Mac";
         if (userAgent.contains("Linux")) return "Linux";
         if (userAgent.contains("Android")) return "Android";
-        if (userAgent.contains("iPhone")) return "iOS";
+        if (userAgent.contains("iPhone") || userAgent.contains("iPad") || userAgent.contains("iOS")) return "iOS";
         return "Unknown";
     }
 }
