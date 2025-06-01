@@ -24,9 +24,6 @@ public class SecurityLogServiceImpl implements SecurityLogService {
         this.repository = repository;
     }
 
-    /**
-     * Логирование произвольного события (не login-аттемпт)
-     */
     @Transactional
     public void logEvent(Long userId, String eventType, String ipAddress, String deviceInfo, Boolean biometryUsed) {
         Map<String, Object> metadata = new HashMap<>();
@@ -46,9 +43,6 @@ public class SecurityLogServiceImpl implements SecurityLogService {
         saveLog(log);
     }
 
-    /**
-     * Логирование попытки входа (особая логика: isSuspicious задается явно!)
-     */
     @Transactional
     public void logLoginAttempt(Long userId, String ipAddress, String deviceInfo, boolean success) {
         Map<String, Object> metadata = new HashMap<>();
@@ -63,7 +57,7 @@ public class SecurityLogServiceImpl implements SecurityLogService {
                 .metadata(metadata)
                 .biometryUsed(false)
                 .createdAt(LocalDateTime.now())
-                .isSuspicious(!success) // !success — это неудачная попытка
+                .isSuspicious(!success)
                 .build();
 
         saveLog(log);
@@ -72,11 +66,18 @@ public class SecurityLogServiceImpl implements SecurityLogService {
     @Override
     @Transactional
     public SecurityLog saveLog(SecurityLog log) {
+        // 🛡️ Не даём null/ip пустыми в базу!
+        if (log.getIpAddress() == null || log.getIpAddress().trim().isEmpty()
+                || "null".equalsIgnoreCase(log.getIpAddress())
+                || "127.0.0.1".equals(log.getIpAddress())
+                || "0:0:0:0:0:0:0:1".equals(log.getIpAddress())) {
+            log.setIpAddress("UNKNOWN");
+        }
+
         if (log.getCreatedAt() == null) {
             log.setCreatedAt(LocalDateTime.now());
         }
 
-        // Защита от null + дефолты
         if (log.getMetadata() == null) {
             log.setMetadata(new HashMap<>());
         }
@@ -87,14 +88,12 @@ public class SecurityLogServiceImpl implements SecurityLogService {
             log.getMetadata().put("city", "UNKNOWN");
         }
 
-        // Для LOGIN_ATTEMPT - НЕ пересчитываем isSuspicious, для других событий - вычисляем
         if (log.getIsSuspicious() == null) {
             log.setIsSuspicious(isSuspicious(log));
         }
 
         SecurityLog saved = repository.save(log);
 
-        // CEF-лог, если подозрительный
         if (Boolean.TRUE.equals(saved.getIsSuspicious())) {
             Map<String, String> extension = new HashMap<>();
             extension.put("userId", String.valueOf(saved.getUserId()));
@@ -157,11 +156,8 @@ public class SecurityLogServiceImpl implements SecurityLogService {
     @Override
     public boolean hasTooManyFailedAttempts(Long userId) {
         int BLOCK_LIMIT = 3;
-        // Берём последние 3 попытки входа по времени (LOGIN_ATTEMPT)
         List<SecurityLog> lastAttempts = repository.findTop3ByUserIdAndEventTypeOrderByCreatedAtDesc(userId, "LOGIN_ATTEMPT");
-        // Если попыток меньше 3 — рано блокировать
         if (lastAttempts.size() < BLOCK_LIMIT) return false;
-        // Если все три последние попытки — неуспешные, блокируем!
         return lastAttempts.stream().allMatch(log -> Boolean.TRUE.equals(log.getIsSuspicious()));
     }
 
@@ -213,7 +209,6 @@ public class SecurityLogServiceImpl implements SecurityLogService {
 
     @Override
     public List<SecurityLog> getLastLoginAttempts(Long userId, int limit) {
-        // В БД всегда вернётся не больше 3 записей — subList не нужен!
         return repository.findTop3ByUserIdAndEventTypeOrderByCreatedAtDesc(userId, "LOGIN_ATTEMPT");
     }
 
@@ -234,11 +229,8 @@ public class SecurityLogServiceImpl implements SecurityLogService {
         return repository.findByUserId(userId);
     }
 
-    /**
-     * Главная логика для подозрительности (для LOGIN_ATTEMPT — не трогаем!).
-     */
+    // --- Вспомогательная логика --------------------------------------------------------------------------------------
     private boolean isSuspicious(SecurityLog log) {
-        // Для LOGIN_ATTEMPT isSuspicious задаётся явно при сохранении, не вычисляем заново
         if ("LOGIN_ATTEMPT".equals(log.getEventType())) {
             return Boolean.TRUE.equals(log.getIsSuspicious());
         }
@@ -246,7 +238,6 @@ public class SecurityLogServiceImpl implements SecurityLogService {
         Long userId = log.getUserId();
         if (userId == null) return false;
 
-        // Если это обычный LOGIN (не LOGIN_ATTEMPT) и не использована биометрия, считаем подозрительным
         if ("LOGIN".equals(log.getEventType()) && !Boolean.TRUE.equals(log.getBiometryUsed())) {
             return true;
         }
@@ -269,39 +260,23 @@ public class SecurityLogServiceImpl implements SecurityLogService {
                 Map<String, Object> oldMd = oldLog.getMetadata();
                 if (oldMd == null) return false;
                 String oldPlatform = oldMd.get("platform") != null ? oldMd.get("platform").toString() : "";
-                String oldBrowser  = oldMd.get("browser")  != null ? oldMd.get("browser").toString()  : "";
+                String oldBrowser  = oldMd.get("browser")  != null ? oldMd.get("browser").toString() : "";
                 return platform.equals(oldPlatform) && browser.equals(oldBrowser);
             });
         }
 
-        // Подозрительно, если новый IP
+        // -- Сигналы подозрительности --
         if (isNewIp(userId, log.getIpAddress())) return true;
-
-        // Подозрительно, если новая геолокация
         if (isNewGeo(userId, geoString)) return true;
-
-        // Подозрительно, если новое устройство
         if (suspiciousDevice) return true;
-
-        // Подозрительно, если новая связка платформа/браузер
         if (suspiciousPlatformBrowser) return true;
-
-        // Подозрительно, если слишком много неудачных попыток входа
         if (hasTooManyFailedAttempts(userId)) return true;
-
-        // Подозрительно, если слишком много смен пароля
         if (hasTooManyPasswordChanges(userId)) return true;
-
-        // Подозрительно, если впервые не использована биометрия, а раньше использовалась
         if (isLoginWithoutBiometryWhereWasBiometryBefore(userId, log)) return true;
-
-        // Подозрительная страна (чёрный список)
         if (isBlacklistedCountry(geoString)) return true;
-
-        // Подозрительно, если user-agent не совпадает с предыдущими
         if (isUserAgentMismatch(userId, deviceInfo)) return true;
 
-        // По умолчанию — не подозрительно
+        // Если ничего не сработало — лог не подозрительный
         return false;
     }
 }
