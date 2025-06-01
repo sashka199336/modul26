@@ -37,24 +37,31 @@ public class SecurityLogController {
         log.setUserId(userId);
 
         String clientIp = getClientIp(request);
-        log.setIpAddress(maskIp(clientIp));
+        String maskedIp = maskIp(clientIp);
 
-        // --- Получаем User-Agent ---
+      
+        if (maskedIp == null || maskedIp.trim().isEmpty() || maskedIp.equals(clientIp) || maskedIp.equals("null") || maskedIp.toLowerCase().contains("unknown") || maskedIp.equals("0:0:0:0:0:0:0:1")) {
+            maskedIp = "UNKNOWN";
+        }
+        log.setIpAddress(maskedIp);
+
         String deviceInfo = request.getHeader("User-Agent");
         log.setDeviceInfo(deviceInfo);
 
-        // --- Парсим платформу и браузер ---
         String browser = parseBrowser(deviceInfo);
         String platform = parsePlatform(deviceInfo);
 
-        // --- Получаем реальные страну и город по IP ---
         Map<String, String> geo = getGeoDataByIp(clientIp);
         String country = geo.getOrDefault("country", "Unknown");
         String city = geo.getOrDefault("city", "Unknown");
 
-        // --- Собираем metadata ---
-        Map<String, Object> metadataMap = log.getMetadata() instanceof Map ?
-                new HashMap<>((Map) log.getMetadata()) : new HashMap<>();
+       
+        Map<String, Object> metadataMap;
+        if (log.getMetadata() instanceof Map) {
+            metadataMap = new HashMap<>((Map<String, Object>) log.getMetadata());
+        } else {
+            metadataMap = new HashMap<>();
+        }
 
         metadataMap.put("country", country);
         metadataMap.put("city", city);
@@ -120,7 +127,7 @@ public class SecurityLogController {
         throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
     }
 
-
+    
     private static String maskIp(String ip) {
         if (ip == null) return null;
         String[] parts = ip.split("\\.");
@@ -131,7 +138,7 @@ public class SecurityLogController {
         return String.format("%s.%s**.***.%s", first, second, fourth);
     }
 
-   
+    
     private static String getClientIp(HttpServletRequest request) {
         String xForwardedFor = request.getHeader("X-Forwarded-For");
         if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
@@ -148,7 +155,6 @@ public class SecurityLogController {
     private static Map<String, String> getGeoDataByIp(String ip) {
         Map<String, String> geoData = new HashMap<>();
         try {
-            // Не определяем локальные/private адреса
             if (ip == null || ip.startsWith("127.") || ip.startsWith("192.168.") || ip.startsWith("10.") || ip.equals("0:0:0:0:0:0:0:1")) {
                 geoData.put("country", "Unknown");
                 geoData.put("city", "Unknown");
@@ -166,7 +172,7 @@ public class SecurityLogController {
                 }
                 String json = response.toString();
 
-                // Наивный парсер JSON — для production лучше взять ObjectMapper
+                // Простейший парсер -- для боевого кода лучше использовать ObjectMapper
                 geoData.put("country", json.replaceAll(".*\"country_name\":\"([^\"]+)\".*", "$1"));
                 geoData.put("city", json.replaceAll(".*\"city\":\"([^\"]+)\".*", "$1"));
             }
@@ -188,7 +194,6 @@ public class SecurityLogController {
         return "Unknown";
     }
 
-    
     private static String parsePlatform(String userAgent) {
         if (userAgent == null) return "Unknown";
         if (userAgent.contains("Windows")) return "Windows";
@@ -199,4 +204,3 @@ public class SecurityLogController {
         return "Unknown";
     }
 }
-
