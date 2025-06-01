@@ -1,5 +1,6 @@
 package com.globus.modul26.controller;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.globus.modul26.model.SecurityLog;
 import com.globus.modul26.service.SecurityLogService;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,7 @@ import java.util.*;
 public class SecurityLogController {
 
     private final SecurityLogService service;
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     public SecurityLogController(SecurityLogService service) {
         this.service = service;
@@ -53,7 +55,7 @@ public class SecurityLogController {
         String browser = parseBrowser(deviceInfo);
         String platform = parsePlatform(deviceInfo);
 
-        Map<String, String> geo = getGeoDataByIp(clientIp);
+        Map<String, String> geo = getGeoDataByIp(clientIp); // JSON-парсер!
         String country = geo.getOrDefault("country", "Unknown");
         String city = geo.getOrDefault("city", "Unknown");
 
@@ -80,7 +82,6 @@ public class SecurityLogController {
             log.setBiometryUsed(false);
         }
 
-        // 🚦 ФИНАЛЬНАЯ броня от null ПЕРЕД сохранением
         if (log.getIpAddress() == null || log.getIpAddress().trim().isEmpty()) {
             log.setIpAddress("UNKNOWN");
         }
@@ -159,13 +160,13 @@ public class SecurityLogController {
         return "UNKNOWN";
     }
 
-    // 🌍 Получает страну и город по IP через ipapi.co (примитивно)
+    // 🌍 Правильный парсинг страны и города по IP через ipapi.co с использованием Jackson
     private static Map<String, String> getGeoDataByIp(String ip) {
         Map<String, String> geoData = new HashMap<>();
         try {
             if (ip == null || ip.startsWith("127.") || ip.startsWith("192.168.") ||
                     ip.startsWith("10.") || ip.equals("0:0:0:0:0:0:0:1") ||
-                    ip.equals("UNKNOWN")) {
+                    ip.equalsIgnoreCase("UNKNOWN")) {
                 geoData.put("country", "Unknown");
                 geoData.put("city", "Unknown");
                 return geoData;
@@ -182,8 +183,11 @@ public class SecurityLogController {
                 }
                 String json = response.toString();
 
-                geoData.put("country", json.replaceAll(".*\"country_name\":\"([^\"]+)\".*", "$1"));
-                geoData.put("city", json.replaceAll(".*\"city\":\"([^\"]+)\".*", "$1"));
+                Map<String, Object> map = objectMapper.readValue(json, Map.class);
+                String country = map.get("country_name") != null ? map.get("country_name").toString() : "Unknown";
+                String city = map.get("city") != null ? map.get("city").toString() : "Unknown";
+                geoData.put("country", country);
+                geoData.put("city", city);
             }
         } catch (Exception e) {
             geoData.put("country", "Unknown");
