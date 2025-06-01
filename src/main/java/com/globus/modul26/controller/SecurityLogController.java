@@ -120,6 +120,7 @@ public class SecurityLogController {
         throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
     }
 
+
     private static String maskIp(String ip) {
         if (ip == null) return null;
         String[] parts = ip.split("\\.");
@@ -130,7 +131,7 @@ public class SecurityLogController {
         return String.format("%s.%s**.***.%s", first, second, fourth);
     }
 
-  
+   
     private static String getClientIp(HttpServletRequest request) {
         String xForwardedFor = request.getHeader("X-Forwarded-For");
         if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
@@ -143,7 +144,7 @@ public class SecurityLogController {
         return request.getRemoteAddr();
     }
 
-   
+    
     private static Map<String, String> getGeoDataByIp(String ip) {
         Map<String, String> geoData = new HashMap<>();
         try {
@@ -176,7 +177,7 @@ public class SecurityLogController {
         return geoData;
     }
 
-   
+    
     private static String parseBrowser(String userAgent) {
         if (userAgent == null) return "Unknown";
         if (userAgent.contains("OPR") || userAgent.contains("Opera")) return "Opera";
@@ -187,7 +188,7 @@ public class SecurityLogController {
         return "Unknown";
     }
 
-   
+    
     private static String parsePlatform(String userAgent) {
         if (userAgent == null) return "Unknown";
         if (userAgent.contains("Windows")) return "Windows";
