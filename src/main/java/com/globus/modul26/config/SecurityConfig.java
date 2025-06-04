@@ -55,7 +55,7 @@ public class SecurityConfig {
         return converter;
     }
 
-    // 🛡 НастрЙки доступа и аутентификации
+    
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
@@ -76,13 +76,13 @@ public class SecurityConfig {
                                 "/api/auth/register",
                                 "/api/auth/login"
                         ).permitAll()
-                        // 👇 ОТКРЫВАЕМ ДЛЯ PROMETHEUS
+                        
                         .requestMatchers("/actuator/prometheus").permitAll()
-                        // 👇 Доступы к API логирования
+                        
                         .requestMatchers("/api/logs/user/**").hasAnyRole("ADMIN", "USER")
                         .requestMatchers("/api/logs/suspicious").hasRole("ADMIN")
                         .requestMatchers("/api/logs/event").hasAnyRole("ADMIN", "USER")
-                        // 👇 Всё остальное — только авторизированным
+                      
                         .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 ->
@@ -93,7 +93,7 @@ public class SecurityConfig {
         return http.build();
     }
 
-    //  Фильтр для логирования b заголовка Authorization
+    
     @Bean
     public FilterRegistrationBean<OncePerRequestFilter> logHeadersFilter() {
         FilterRegistrationBean<OncePerRequestFilter> bean = new FilterRegistrationBean<>();
