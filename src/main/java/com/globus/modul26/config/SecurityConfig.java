@@ -43,7 +43,7 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-    // ⚡ Разборщик ролей из токена (claim "roles")
+    // Разборщик ролей из токена (claim "roles")
     @Bean
     public JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter gac = new JwtGrantedAuthoritiesConverter();
@@ -71,7 +71,7 @@ public class SecurityConfig {
                                 "/webjars/**",
                                 "/doc.html"
                         ).permitAll()
-                        // 👇 Открываем регистрацию/логин
+                        
                         .requestMatchers(
                                 "/api/auth/register",
                                 "/api/auth/login"
