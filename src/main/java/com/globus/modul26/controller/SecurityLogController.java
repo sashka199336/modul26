@@ -41,7 +41,7 @@ public class SecurityLogController {
         String clientIp = getClientIp(request);
         String maskedIp = maskIp(clientIp);
 
-        // 🛡️ Гарантированная маскировка и защита от null/UNKNOWN/localhost
+        //  Гарантированная маскировка и защита от null/UNKNOWN/localhost
         if (maskedIp == null || maskedIp.trim().isEmpty() || maskedIp.equals("null") ||
                 maskedIp.toLowerCase().contains("unknown") ||
                 maskedIp.equals("0:0:0:0:0:0:0:1") || maskedIp.equals("127.0.0.1")) {
@@ -132,7 +132,7 @@ public class SecurityLogController {
         throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
     }
 
-    // 🔒 Маскирует IP-адрес
+    //  Маскирует IP-адрес
     private static String maskIp(String ip) {
         if (ip == null) return null;
         String[] parts = ip.split("\\.");
@@ -143,7 +143,7 @@ public class SecurityLogController {
         return String.format("%s.%s**.***.%s", first, second, fourth);
     }
 
-    // 🌐 Получает реальный IP пользователя
+    //  Получает реальный IP пользователя
     private static String getClientIp(HttpServletRequest request) {
         String xForwardedFor = request.getHeader("X-Forwarded-For");
         if (xForwardedFor != null && !xForwardedFor.isEmpty()) {
@@ -160,7 +160,7 @@ public class SecurityLogController {
         return "UNKNOWN";
     }
 
-    // 🌍 Правильный парсинг страны и города по IP через ipapi.co с использованием Jackson
+    //  Правильный парсинг страны и города по IP через ipapi.co с использованием Jackson
     private static Map<String, String> getGeoDataByIp(String ip) {
         Map<String, String> geoData = new HashMap<>();
         try {
@@ -196,7 +196,7 @@ public class SecurityLogController {
         return geoData;
     }
 
-    // 🖥️ Определение браузера
+    //  Определение браузера
     private static String parseBrowser(String userAgent) {
         if (userAgent == null) return "Unknown";
         if (userAgent.contains("OPR") || userAgent.contains("Opera")) return "Opera";
@@ -207,7 +207,7 @@ public class SecurityLogController {
         return "Unknown";
     }
 
-    // 💻 Определение операционной системы
+    //  Определение операционной системы
     private static String parsePlatform(String userAgent) {
         if (userAgent == null) return "Unknown";
         if (userAgent.contains("Windows")) return "Windows";
